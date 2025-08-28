@@ -1,0 +1,112 @@
+:root {
+  --bg: #0b1220;
+  --surface: #121826;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --border: #1f2937;
+
+  --primary: #7c3aed;
+  --primary-contrast: #ffffff;
+  --ring: #3b82f6;
+  --danger: #ef4444;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  color: var(--text);
+  background: var(--bg);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  /* transparent edges fade into var(--bg), so no corner mismatch */
+  background:
+    radial-gradient(120vw 120vh at 50% -10%, #0e1630aa 0%, transparent 60%);
+}
+
+/* Layout */
+main { width: min(900px, 92%); margin: 0 auto; padding-bottom: 3rem; }
+
+/* Header */
+.header {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(18, 24, 38, .75);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  display: flex; justify-content: center; align-items: center;
+  text-align: center; padding: 1rem 0;
+}
+.header-inner h1 { margin: 0; font-weight: 700; letter-spacing: .2px; }
+
+/* Cards & stacks */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem;
+  box-shadow: 0 6px 18px rgba(0,0,0,.18);
+}
+.stack { display: grid; gap: .9rem; }
+
+/* Controls */
+input, textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #0f172a;
+  color: var(--text);
+  padding: .65rem .75rem;
+  font: inherit;
+}
+input::placeholder, textarea::placeholder { color: var(--muted); }
+input:focus, textarea:focus, button:focus {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+button {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #0f172a;
+  color: var(--text);
+  padding: .5rem .85rem;
+  cursor: pointer;
+  transition: transform .04s ease, filter .12s ease;
+}
+button:hover { filter: brightness(1.08); }
+button:active { transform: translateY(1px); }
+button.primary {
+  background: var(--primary);
+  color: var(--primary-contrast);
+  border-color: var(--primary);
+}
+button.danger { color: var(--danger); }
+
+/* Notes list */
+.note { display: flex; align-items: flex-start; gap: .9rem; }
+.note__main { flex: 1; }
+.note__title { margin: 0; font-size: 1.05rem; font-weight: 600; }
+.note__body { margin: .35rem 0 0; color: var(--muted); white-space: pre-wrap; }
+
+.small { font-size: .875rem; }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+}
+@media (max-width: 520px) {
+  .toolbar { flex-direction: column; align-items: stretch; }
+}
+
+.search { width: 100%; max-width: 360px; }
