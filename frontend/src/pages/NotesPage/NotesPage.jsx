@@ -125,16 +125,16 @@ export default function NotesPage() {
         const toIndex = workingList.findIndex((note) => note._id === overNoteId);
         if (fromIndex === -1 || toIndex === -1) return;
 
-        // Keep pinned and unpinned groups separate while reordering.
         if (workingList[fromIndex].pinned !== workingList[toIndex].pinned) return;
 
         const [movedNote] = workingList.splice(fromIndex, 1);
         workingList.splice(toIndex, 0, movedNote);
+
         setNotesOnPage(workingList);
         setDraggedNoteId(null);
 
         try {
-            await noteService.reorder(workingList.map((note) => note._id));
+            await noteService.reorderPair(draggedNoteId, overNoteId);
         } catch (error) {
             await loadNotes();
         }

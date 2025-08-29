@@ -8,6 +8,7 @@ module.exports = {
   delete: deleteNote,
   pin,
   reorder,
+  reorderPair,
 };
 
 async function index(req, res) {
@@ -111,4 +112,45 @@ async function reorder(req, res) {
   } catch (error) {
     res.status(400).json({ message: error.message || 'Reorder Failed' });
   }
+}
+
+async function reorderPair(req, res) {
+  const { draggedId, overId } = req.body || {};
+  if (!draggedId || !overId) {
+    return res.status(400).json({ message: 'draggedId and overId are required' });
+  }
+
+  const draggedNote = await Note.findById(draggedId).select('_id pinned');
+  const overNote = await Note.findById(overId).select('_id pinned');
+
+  if (!draggedNote || !overNote) {
+    return res.status(404).json({ message: 'Note not found' });
+  }
+  if (draggedNote.pinned !== overNote.pinned) {
+    return res.status(400).json({ message: 'Cannot reorder across pinned groups' });
+  }
+
+  const groupDocs = await Note.find({ pinned: draggedNote.pinned }).sort({ order: -1, createdAt: -1 }).select('_id');
+  const idList = groupDocs.map(n => n._id.toString());
+  const fromIndex = idList.indexOf(String(draggedId));
+  const toIndex = idList.indexOf(String(overId));
+
+  if (fromIndex === -1 || toIndex === -1) {
+    return res.status(400).json({ message: 'IDs not in the same group' });
+  }
+
+  idList.splice(fromIndex, 1);
+  idList.splice(toIndex, 0, String(draggedId));
+
+  const baseTimestamp = Date.now();
+  await Note.bulkWrite(
+    idList.map((noteId, index) => ({
+      updateOne: {
+        filter: { _id: noteId },
+        update: { $set: { order: baseTimestamp - index } },
+      },
+    }))
+  );
+
+  return res.json({ ok: true });
 }
