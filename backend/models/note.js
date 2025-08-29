@@ -9,7 +9,9 @@ const noteSchema = new Schema(
             trim: true, 
             maxLength: 80 
         },
-        body: { type: String, trim: true, maxLength: 250 }
+        body: { type: String, trim: true, maxLength: 250 },
+        pinned: { type: Boolean, default: false },
+        order: { type: Number, default: () => Date.now() }
     },
     {
         timestamps: true
