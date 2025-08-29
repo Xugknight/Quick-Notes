@@ -107,7 +107,7 @@ async function reorder(req, res) {
         },
       }))
     );
-    response.json({ ok: true });
+    res.json({ ok: true });
   } catch (error) {
     res.status(400).json({ message: error.message || 'Reorder Failed' });
   }
