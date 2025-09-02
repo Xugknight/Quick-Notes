@@ -203,3 +203,24 @@ button.danger {
 .pin.active {
   color: #fbbf24;
 }
+
+.group-title {
+  margin: .25rem 0 .25rem;
+  font-size: .9rem;
+  letter-spacing: .4px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.draggable {
+  cursor: grab;
+}
+
+.draggable:active {
+  cursor: grabbing;
+}
+
+.card.drag-over {
+  outline: 2px dashed var(--ring);
+  outline-offset: 3px;
+}
