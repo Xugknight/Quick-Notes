@@ -8,7 +8,7 @@ A lightweight **MERN** app that demonstrates clean **CRUD** with a polished, mob
 - **Drag to reorder** within pinned/unpinned groups (order persists)
 - **Search & Pagination** (server-side)
 - **Production build** served from Express (single service)
-- **Reset Demo** button (optional) to restore showcase data
+<!-- - **Reset Demo** button (optional) to restore showcase data -->
 
 ## Tech
 - **Backend:** Node.js, Express, Mongoose (CommonJS)
