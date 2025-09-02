@@ -18,4 +18,6 @@ const noteSchema = new Schema(
     }
 );
 
+noteSchema.index({ pinned: -1, order: -1, createdAt: -1 });
+
 module.exports = mongoose.model('Note', noteSchema);
