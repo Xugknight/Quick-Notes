@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as noteService from '../../services/noteService';
 
 export default function NotesPage() {
@@ -21,10 +21,13 @@ export default function NotesPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
-    const [itemsPerPage] = useState(6);
+    const [itemsPerPage, setItemsPerPage] = useState(6);
 
     // DnD
     const [draggedNoteId, setDraggedNoteId] = useState(null);
+
+    const newTitleRef = useRef(null);
+    const editTitleRef = useRef(null);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -34,6 +37,8 @@ export default function NotesPage() {
         if (qFromUrl.trim()) setSearchQuery(qFromUrl);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    useEffect(() => { newTitleRef.current?.focus(); }, []);
 
     useEffect(() => {
         const params = new URLSearchParams();
@@ -65,7 +70,7 @@ export default function NotesPage() {
     useEffect(() => {
         loadNotes();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentPage, searchQuery]);
+    }, [currentPage, searchQuery, itemsPerPage]);
 
     async function handleCreateSubmit(event) {
         event.preventDefault();
@@ -96,6 +101,7 @@ export default function NotesPage() {
         setEditingNoteId(note._id);
         setEditingTitle(note.title);
         setEditingBody(note.body || '');
+        setTimeout(() => editTitleRef.current?.focus(), 0);
     }
     function cancelEditing() {
         setEditingNoteId(null);
@@ -116,9 +122,30 @@ export default function NotesPage() {
         }
     }
 
+    function handleEditKeyDown(event, noteId) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            saveEditing(noteId);
+        }
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            cancelEditing();
+        }
+    }
+
     async function togglePinned(note) {
         try {
             await noteService.pin(note._id, !note.pinned);
+            await loadNotes();
+        } catch (error) {
+            setErrorMessage(error.message);
+        }
+    }
+
+    async function duplicateNote(note) {
+        try {
+            await noteService.create({ title: note.title, body: note.body || '' });
+            setCurrentPage(1);
             await loadNotes();
         } catch (error) {
             setErrorMessage(error.message);
@@ -178,8 +205,10 @@ export default function NotesPage() {
                         {editingNoteId === note._id ? (
                             <div className="stack">
                                 <input
+                                    ref={editTitleRef}
                                     value={editingTitle}
                                     onChange={(event) => setEditingTitle(event.target.value)}
+                                    onKeyDown={(event) => handleEditKeyDown(event, note._id)}
                                     maxLength={80}
                                     required
                                 />
@@ -187,6 +216,7 @@ export default function NotesPage() {
                                     rows={4}
                                     value={editingBody}
                                     onChange={(event) => setEditingBody(event.target.value)}
+                                    onKeyDown={(event) => handleEditKeyDown(event, note._id)}
                                     maxLength={2000}
                                 />
                                 <div style={{ display: 'flex', gap: '.5rem' }}>
@@ -208,6 +238,7 @@ export default function NotesPage() {
                                 </div>
                                 <div className="note__actions" style={{ display: 'grid', gap: '.4rem' }}>
                                     <button onClick={() => beginEditing(note)} type="button">Edit</button>
+                                    <button onClick={() => duplicateNote(note)} type="button">Duplicate</button>
                                     <button onClick={() => togglePinned(note)} type="button" className={note.pinned ? 'pin active' : 'pin'}>
                                         {note.pinned ? 'Unpin' : 'Pin'}
                                     </button>
@@ -221,12 +252,16 @@ export default function NotesPage() {
         );
     }
 
+    const pinnedNotes = useMemo(() => visibleNotes.filter((n) => n.pinned), [visibleNotes]);
+    const otherNotes = useMemo(() => visibleNotes.filter((n) => !n.pinned), [visibleNotes]);
+
     return (
         <section className="stack" style={{ padding: '1rem 0 2rem' }}>
             <div className="card">
                 <h2>Add Note</h2>
                 <form className="stack" onSubmit={handleCreateSubmit}>
                     <input
+                        ref={newTitleRef}
                         placeholder="Title"
                         value={newNoteTitle}
                         onChange={(event) => setNewNoteTitle(event.target.value)}
@@ -250,6 +285,17 @@ export default function NotesPage() {
                             onChange={(event) => { setCurrentPage(1); setSearchQuery(event.target.value); }}
                             style={{ marginLeft: 'auto' }}
                         />
+                        {searchQuery && (
+                            <button
+                                type="button"
+                                className="icon-button"
+                                title="Clear search"
+                                aria-label="Clear search"
+                                onClick={() => { setSearchQuery(''); setCurrentPage(1); }}
+                            >
+                                Clear
+                            </button>
+                        )}
                     </div>
                     {errorMessage && <p className="muted" style={{ color: '#b91c1c' }}>{errorMessage}</p>}
                 </form>
@@ -258,26 +304,29 @@ export default function NotesPage() {
             <div className="stack">
                 <div className="toolbar">
                     <h2 style={{ margin: 0 }}>Notes</h2>
-                    <div className="muted small">{totalCount} total</div>
+                    <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }}>
+                        <label className="small muted" htmlFor="ipp">Per page:</label>
+                        <select
+                            id="ipp"
+                            value={itemsPerPage}
+                            onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}
+                        >
+                            <option value={6}>6</option>
+                            <option value={10}>10</option>
+                            <option value={20}>20</option>
+                        </select>
+                        <div className="muted small">{totalCount} total</div>
+                    </div>
                 </div>
 
                 {isLoading && <div className="card">Loading…</div>}
                 {!isLoading && visibleNotes.length === 0 && <div className="card">No notes</div>}
 
-                {(() => {
-                    const pinnedNotes = visibleNotes.filter((note) => note.pinned);
-                    const otherNotes = visibleNotes.filter((note) => !note.pinned);
+                {pinnedNotes.length > 0 && <h3 className="group-title">Pinned</h3>}
+                {pinnedNotes.length > 0 && renderList(pinnedNotes)}
 
-                    return (
-                        <>
-                            {pinnedNotes.length > 0 && <h3 className="group-title">Pinned</h3>}
-                            {pinnedNotes.length > 0 && renderList(pinnedNotes)}
-
-                            {otherNotes.length > 0 && <h3 className="group-title">Others</h3>}
-                            {otherNotes.length > 0 && renderList(otherNotes)}
-                        </>
-                    );
-                })()}
+                {otherNotes.length > 0 && <h3 className="group-title">Others</h3>}
+                {otherNotes.length > 0 && renderList(otherNotes)}
 
                 <div className="pagination">
                     <button

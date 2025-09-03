@@ -224,3 +224,8 @@ button.danger {
   outline: 2px dashed var(--ring);
   outline-offset: 3px;
 }
+
+.icon-button {
+  padding: .35rem .6rem;
+  border-radius: 10px;
+}
