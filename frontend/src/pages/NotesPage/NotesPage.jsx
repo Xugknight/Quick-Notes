@@ -191,6 +191,18 @@ export default function NotesPage() {
         }
     }
 
+    async function handleResetDemo() {
+        const confirmed = window.confirm('Reset Demo Data? This will replace all notes.');
+        if (!confirmed) return;
+        try {
+            await noteService.resetDemo();
+            setCurrentPage(1);
+            await loadNotes();
+        } catch (error) {
+            setErrorMessage(error.message);
+        }
+    }
+
     const visibleNotes = useMemo(() => notesOnPage, [notesOnPage]);
 
     function renderList(noteList) {
@@ -322,6 +334,9 @@ export default function NotesPage() {
                             <option value={20}>20</option>
                         </select>
                         <div className="muted small">{totalCount} total</div>
+                        <button type="button" onClick={handleResetDemo}>
+                            Reset Demo
+                        </button>
                     </div>
                 </div>
 

@@ -5,6 +5,7 @@ const notesCtrl = require('../controllers/notes');
 router.get('/', notesCtrl.index);
 router.post('/reorder-pair', notesCtrl.reorderPair);
 router.patch('/reorder', notesCtrl.reorder);
+router.post('/reset-demo', notesCtrl.resetDemo);
 router.get('/:id', notesCtrl.show);
 router.post('/', notesCtrl.create);
 router.put('/:id', notesCtrl.update);

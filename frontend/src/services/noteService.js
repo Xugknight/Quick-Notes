@@ -13,3 +13,4 @@ export function show(noteId) { return sendRequest(`${BASE_URL}/${noteId}`); }
 export function pin(noteId, shouldPin) { return sendRequest(`${BASE_URL}/${noteId}/pin`, 'PATCH', { pinned: shouldPin }); }
 export function reorder(noteIds) { return sendRequest(`${BASE_URL}/reorder`, 'PATCH', { noteIds }); }
 export function reorderPair(draggedId, overId) { return sendRequest('/api/notes/reorder-pair', 'POST', { draggedId, overId }); }
+export function resetDemo() { return sendRequest('/api/notes/reset-demo', 'POST', {})};
