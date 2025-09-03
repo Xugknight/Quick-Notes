@@ -6,6 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./backend/server.js",
     "build": "npm install && npm --prefix ./frontend install && npm --prefix ./frontend run build",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm --prefix ./frontend install && npm --prefix ./frontend run build",
     "seed": "node ./backend/scripts/seed.js"
   },
   "keywords": [],
@@ -13,6 +14,7 @@
   "license": "ISC",
   "type": "commonjs",
   "description": "",
+  "engines": { "node": ">=18 <21" },
   "dependencies": {
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
