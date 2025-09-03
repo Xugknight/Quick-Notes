@@ -33,8 +33,11 @@ export default function NotesPage() {
         const params = new URLSearchParams(window.location.search);
         const pageFromUrl = parseInt(params.get('page') || '1', 10);
         const qFromUrl = params.get('q') || '';
+        const limitFromUrl = parseInt(params.get('limit') || '', 10);
+
         if (Number.isFinite(pageFromUrl) && pageFromUrl > 1) setCurrentPage(pageFromUrl);
         if (qFromUrl.trim()) setSearchQuery(qFromUrl);
+        if (Number.isFinite(limitFromUrl) && [6, 10, 20].includes(limitFromUrl)) setItemsPerPage(limitFromUrl);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -44,9 +47,10 @@ export default function NotesPage() {
         const params = new URLSearchParams();
         if (currentPage > 1) params.set('page', String(currentPage));
         if (searchQuery.trim()) params.set('q', searchQuery.trim());
+        if (itemsPerPage !== 6) params.set('limit', String(itemsPerPage));
         const newUrl = params.toString() ? `?${params.toString()}` : window.location.pathname;
         window.history.replaceState(null, '', newUrl);
-    }, [currentPage, searchQuery]);
+    }, [currentPage, searchQuery, itemsPerPage]);
 
     async function loadNotes() {
         setIsLoading(true);
@@ -297,7 +301,9 @@ export default function NotesPage() {
                             </button>
                         )}
                     </div>
-                    {errorMessage && <p className="muted" style={{ color: '#b91c1c' }}>{errorMessage}</p>}
+                    {errorMessage && <p className="muted" style={{ color: '#b91c1c' }} role="status" aria-live="polite">
+                        {errorMessage}
+                    </p>}
                 </form>
             </div>
 
