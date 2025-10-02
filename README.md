@@ -57,6 +57,6 @@ _A lightweight MERN app for fast, organized note-taking with a polished, mobile-
 
 ## Try Quick-Notes Here!
 
-[![Heroku](https://img.shields.io/badge/demo-heroku-purple?logo=heroku)](https://quick-notes-0105ece0e60a.herokuapp.com/)  
+[![Heroku](https://img.shields.io/badge/demo-heroku-purple?logo=heroku)](https://quick-notes.knightworks.dev/)  
 
 > 💡 Tip: Click **Reset Demo** to explore showcase notes, then try pinning, drag-reordering, searching, and paginating.
